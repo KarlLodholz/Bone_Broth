@@ -50,10 +50,33 @@ for x in range(0,backlog-1):
 
 cash = 1000
 num_stk = 0
-stocks = 0
+trades = 0
+
+#highest possible gains
+for x in range(backlog+1, len(stk)):
+    if(x+1 < len(stk)):
+        if(bool(num_stk)):        
+            if(stk[x] > stk[x+1]):
+                cash = num_stk * stk[x]
+                num_stk = 0
+                trades += 1
+        else:
+            if(stk[x] < stk[x+1]):
+                num_stk = cash / stk[x]
+                cash = 0
+
+print('maximum gains: ',cash)
+print('possible trades: ',len(stk)-backlog)
+print('total trades: ', trades)
+print('-------------------------------------------------------------------')
+
+
+
 sellout_g = .02
 sellout_l = -.05
-
+cash = 1000
+num_stk = 0
+stocks = 0
 
 for x in range(backlog+1,len(stk)):
     if(bool(num_stk) == True):
