@@ -42,4 +42,51 @@ def get_prices(ticket):
         x += 1
     return prc
 
-print(get_prices('AMZN'))
+backlog = 1800
+sum = 0
+stk = get_prices('AMZN')
+for x in range(0,backlog-1):
+    sum += ((stk[x+1] - stk[x])/stk[x]*100)
+
+cash = 1000
+num_stk = 0
+stocks = 0
+sellout_g = .02
+sellout_l = -.05
+
+
+for x in range(backlog+1,len(stk)):
+    if(bool(num_stk) == True):
+        if (((stk[x] - stocks) / stocks) >= sellout_g):
+            #sell()
+            cash += num_stk * stk[x]
+            num_stk = 0
+            print('gains ', cash)
+
+        elif (((stk[x] - stocks) / stocks) <= sellout_l):
+            #sell()
+            cash += num_stk * stk[x]
+            num_stk = 0
+            print('loss ', cash)
+
+    else: 
+        if(((stk[x] - stk[x-1])/stk[x-1]*100) < 0):
+            #buy()
+            
+            stocks = stk[x]
+            num_stk = cash/stk[x] 
+            cash = 0
+            print('bought ', num_stk, ' at ', stocks)
+        #else:
+
+    sum += ((stk[x] - stk[x-1])/stk[x]*100)
+
+cash += num_stk * stocks
+print(cash)
+
+# if(sum/backlog > 0):
+#     
+        
+# else:
+    # sum += ((stk[backlog+1] - stk[backlog])/stk[backlog]*100)
+    # backlog += 1
