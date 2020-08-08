@@ -75,14 +75,13 @@ def simmer(stk): #base trade function
 
 def perfect_simmer(stk): #highest possible gains
     
+    cash = 100
+    num_stk = 0
+    stocks = 0
     for x in range(0, len(stk)):
-        cash = 100
-        num_stk = 0
-        stocks = 0
-
         if(x+1 < len(stk)):
             if(bool(num_stk)):        
-                if(stk[x] > stk[x+1] or x == len(stk)-1):
+                if(stk[x] > stk[x+1]):
                     cash = num_stk * stk[x]
                     num_stk = 0
             else:
@@ -90,16 +89,17 @@ def perfect_simmer(stk): #highest possible gains
                     num_stk = cash / stk[x]
                     stocks = stk[x]
                     cash = 0
+    cash += num_stk * stk[len(stk)-1]
 
     return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
 def presentation(tickets): #list of tickets
-    print('tickets | returned gains | perfect gains')
+    print('tickets | percent returned gains | percent perfect gains')
     sum = 0
     for x in tickets:
         stk = get_prices(x)
         temp = simmer(stk)
-        print(x,':   ',temp,'  |  ',perfect_simmer(stk))
+        print(x,': ',temp,' | ',perfect_simmer(stk))
         sum += temp
     print('avg return: ',sum/len(tickets))
 
