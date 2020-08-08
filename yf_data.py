@@ -42,74 +42,67 @@ def get_prices(ticket):
         x += 1
     return prc
 
-backlog = 1800
-sum = 0
-stk = get_prices('AMZN')
-for x in range(0,backlog-1):
-    sum += ((stk[x+1] - stk[x])/stk[x]*100)
 
-cash = 1000
-num_stk = 0
-trades = 0
 
-#highest possible gains
-for x in range(backlog+1, len(stk)):
-    if(x+1 < len(stk)):
-        if(bool(num_stk)):        
-            if(stk[x] > stk[x+1]):
-                cash = num_stk * stk[x]
+def simmer(stk): #base trade function
+    cash = 100
+    num_stk = 0
+    dl = False
+
+    sellout_g = .02
+    sellout_l = -.02
+
+    for x in range(0,len(stk)):
+        if(bool(num_stk) == True):
+            # first condition is if gains and second controls losses
+            if (((stk[x] - stocks) / stocks) >= sellout_g or ((stk[x] - stocks) / stocks) <= sellout_l): 
+                #sell()
+                cash += num_stk * stk[x]
                 num_stk = 0
-                trades += 1
-        else:
-            if(stk[x] < stk[x+1]):
-                num_stk = cash / stk[x]
+
+        else: 
+            if(((stk[x] - stk[x-1])/stk[x-1]*100) < 0):
+                dl = True
+            if(dl == True & (((stk[x] - stk[x-1])/stk[x-1]*100) >= 0)):
+                stocks = stk[x]
+                num_stk = cash/stk[x] 
                 cash = 0
+                dl = False
 
-print('maximum gains: ',cash)
-print('possible trades: ',len(stk)-backlog)
-print('total trades: ', trades)
-print('-------------------------------------------------------------------')
+    cash += num_stk * stocks
 
+    return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
+def perfect_simmer(stk): #highest possible gains
+    
+    for x in range(0, len(stk)):
+        cash = 100
+        num_stk = 0
+        stocks = 0
 
-sellout_g = .02
-sellout_l = -.05
-cash = 1000
-num_stk = 0
-stocks = 0
+        if(x+1 < len(stk)):
+            if(bool(num_stk)):        
+                if(stk[x] > stk[x+1] or x == len(stk)-1):
+                    cash = num_stk * stk[x]
+                    num_stk = 0
+            else:
+                if(stk[x] < stk[x+1]):
+                    num_stk = cash / stk[x]
+                    stocks = stk[x]
+                    cash = 0
 
-for x in range(backlog+1,len(stk)):
-    if(bool(num_stk) == True):
-        if (((stk[x] - stocks) / stocks) >= sellout_g):
-            #sell()
-            cash += num_stk * stk[x]
-            num_stk = 0
-            print('gains ', cash)
+    return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
-        elif (((stk[x] - stocks) / stocks) <= sellout_l):
-            #sell()
-            cash += num_stk * stk[x]
-            num_stk = 0
-            print('loss ', cash)
+def presentation(tickets): #list of tickets
+    print('tickets | returned gains | perfect gains')
+    sum = 0
+    for x in tickets:
+        stk = get_prices(x)
+        temp = simmer(stk)
+        print(x,':   ',temp,'  |  ',perfect_simmer(stk))
+        sum += temp
+    print('avg return: ',sum/len(tickets))
 
-    else: 
-        if(((stk[x] - stk[x-1])/stk[x-1]*100) < 0):
-            #buy()
-            
-            stocks = stk[x]
-            num_stk = cash/stk[x] 
-            cash = 0
-            print('bought ', num_stk, ' at ', stocks)
-        #else:
+tickets = ['AMZN','NKE','FB','SNE','TSLA','MSFT']
 
-    sum += ((stk[x] - stk[x-1])/stk[x]*100)
-
-cash += num_stk * stocks
-print(cash)
-
-# if(sum/backlog > 0):
-#     
-        
-# else:
-    # sum += ((stk[backlog+1] - stk[backlog])/stk[backlog]*100)
-    # backlog += 1
+presentation(tickets)
