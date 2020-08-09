@@ -66,7 +66,6 @@ def simmer(stk,fee): #base trade function
                 dl = True
             if(dl == True & (((stk[x] - stk[x-1])/stk[x-1]*100) >= 0)):
                 #buy
-                print(x)
                 stocks = stk[x]
                 num_stk = cash/stk[x] 
                 cash = 0
@@ -74,7 +73,7 @@ def simmer(stk,fee): #base trade function
 
     cash += num_stk * stocks
 
-    return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
+    return (cash-100) / (len(stk)/195) #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
 def perfect_simmer(stk,fee): #highest possible gains
     
@@ -92,18 +91,19 @@ def perfect_simmer(stk,fee): #highest possible gains
                     cash = 0
     cash += num_stk * stk[len(stk)-1] * (1-fee)
 
-    return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
+    return (cash-100) / (len(stk)/195) #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
 def presentation(tickets,fee): #list of tickets
     print('broker percent fee per trade: ', fee*100)
     print('tickets | percent returned gains | percent perfect gains')
     sum = 0
+    stk = 0
     for x in tickets:
         stk = get_prices(x)
         temp = simmer(stk,fee)
         print(x,': ',temp,' | ',perfect_simmer(stk,fee))
         sum += temp
-    print('avg return: ',sum/len(tickets))
+    print('avg return / day: ',sum/len(tickets))
 
 tickets = ['AMZN','NKE','FB','SNE','TSLA','MSFT']
 
