@@ -44,26 +44,29 @@ def get_prices(ticket):
 
 
 
-def simmer(stk): #base trade function
+def simmer(stk,fee): #base trade function
     cash = 100
     num_stk = 0
     dl = False
 
-    sellout_g = .02
-    sellout_l = -.02
+    sellout_g = .08
+    sellout_l = -.05
+
 
     for x in range(0,len(stk)):
         if(bool(num_stk) == True):
             # first condition is if gains and second controls losses
             if (((stk[x] - stocks) / stocks) >= sellout_g or ((stk[x] - stocks) / stocks) <= sellout_l): 
-                #sell()
-                cash += num_stk * stk[x]
+                #sell
+                cash += (num_stk * stk[x]) * (1-fee) 
                 num_stk = 0
 
         else: 
             if(((stk[x] - stk[x-1])/stk[x-1]*100) < 0):
                 dl = True
             if(dl == True & (((stk[x] - stk[x-1])/stk[x-1]*100) >= 0)):
+                #buy
+                print(x)
                 stocks = stk[x]
                 num_stk = cash/stk[x] 
                 cash = 0
@@ -73,36 +76,35 @@ def simmer(stk): #base trade function
 
     return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
-def perfect_simmer(stk): #highest possible gains
+def perfect_simmer(stk,fee): #highest possible gains
     
     cash = 100
     num_stk = 0
-    stocks = 0
     for x in range(0, len(stk)):
         if(x+1 < len(stk)):
             if(bool(num_stk)):        
-                if(stk[x] > stk[x+1]):
-                    cash = num_stk * stk[x]
+                if(stk[x] > stk[x+1]): #sell
+                    cash += (num_stk * stk[x]) * (1-fee)
                     num_stk = 0
             else:
-                if(stk[x] < stk[x+1]):
+                if(stk[x] < stk[x+1]): #buy
                     num_stk = cash / stk[x]
-                    stocks = stk[x]
                     cash = 0
-    cash += num_stk * stk[len(stk)-1]
+    cash += num_stk * stk[len(stk)-1] * (1-fee)
 
     return cash-100 #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
 
-def presentation(tickets): #list of tickets
+def presentation(tickets,fee): #list of tickets
+    print('broker percent fee per trade: ', fee*100)
     print('tickets | percent returned gains | percent perfect gains')
     sum = 0
     for x in tickets:
         stk = get_prices(x)
-        temp = simmer(stk)
-        print(x,': ',temp,' | ',perfect_simmer(stk))
+        temp = simmer(stk,fee)
+        print(x,': ',temp,' | ',perfect_simmer(stk,fee))
         sum += temp
     print('avg return: ',sum/len(tickets))
 
 tickets = ['AMZN','NKE','FB','SNE','TSLA','MSFT']
 
-presentation(tickets)
+presentation(tickets, .0)
