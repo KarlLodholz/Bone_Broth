@@ -1,4 +1,5 @@
 import yfinance as yf
+import numpy as np
 def get_prices(ticket):
     data = yf.download(  # or pdr.get_data_yahoo(...
             # tickers list or string as well
@@ -44,19 +45,15 @@ def get_prices(ticket):
 
 
 
-def simmer(stk,fee): #base trade function
+def simmer(stk,sell_g,sell_l,fee): #base trade function
     cash = 100
     num_stk = 0
     dl = False
 
-    sellout_g = .08
-    sellout_l = -.05
-
-
     for x in range(0,len(stk)):
         if(bool(num_stk) == True):
             # first condition is if gains and second controls losses
-            if (((stk[x] - stocks) / stocks) >= sellout_g or ((stk[x] - stocks) / stocks) <= sellout_l): 
+            if (((stk[x] - stocks) / stocks) >= sell_g or ((stk[x] - stocks) / stocks) <= sell_l): 
                 #sell
                 cash += (num_stk * stk[x]) * (1-fee) 
                 num_stk = 0
@@ -74,6 +71,21 @@ def simmer(stk,fee): #base trade function
     cash += num_stk * stocks
 
     return (cash-100) / (len(stk)/195) #because init cash is 100 the percent return can be simplified to cash-100, instead of cash-init_cash/init_cash*100
+
+def brute_simmer(stk,fee):
+    gt = lt = top = 0
+    temp = 0
+    for g in np.arange(.01,.20,.01):
+        for l in np.arange(.01,.20,.01):
+            temp = simmer(stk,g,l,fee)
+            if(temp > top):
+                top = temp
+                gt = g
+                lt = l
+
+    print('g:',gt,'  l:',lt)
+    return top
+
 
 def perfect_simmer(stk,fee): #highest possible gains
     
@@ -100,7 +112,7 @@ def presentation(tickets,fee): #list of tickets
     stk = 0
     for x in tickets:
         stk = get_prices(x)
-        temp = simmer(stk,fee)
+        temp = brute_simmer(stk,fee)
         print(x,': ',temp,' | ',perfect_simmer(stk,fee))
         sum += temp
     print('avg return / day: ',sum/len(tickets))
