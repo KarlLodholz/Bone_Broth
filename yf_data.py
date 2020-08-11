@@ -48,20 +48,24 @@ def get_prices(ticket):
 def simmer(stk,sell_g,sell_l,fee): #base trade function
     cash = 100
     num_stk = 0
-    dl = False
+    hl = dl = False
 
     for x in range(0,len(stk)):
         if(bool(num_stk) == True):
             # first condition is if gains and second controls losses
             if (((stk[x] - stocks) / stocks) >= sell_g or ((stk[x] - stocks) / stocks) <= sell_l): 
+                hl = True
+
+            if(hl == True and (stk[x]-stk[x-1])/stk[x-1] <= 0):
                 #sell
                 cash += (num_stk * stk[x]) * (1-fee) 
                 num_stk = 0
+                hl = False
 
         else: 
             if(((stk[x] - stk[x-1])/stk[x-1]*100) < 0):
                 dl = True
-            if(dl == True & (((stk[x] - stk[x-1])/stk[x-1]*100) >= 0)):
+            if(dl == True and (((stk[x] - stk[x-1])/stk[x-1]*100) >= 0)):
                 #buy
                 stocks = stk[x]
                 num_stk = cash/stk[x] 
